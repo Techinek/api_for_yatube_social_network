@@ -45,16 +45,8 @@ class Follow(models.Model):
                              blank=True,
                              null=True,
                              )
-    following = models.ForeignKey(User, related_name='following',
-                               on_delete=models.SET_NULL,
-                               blank=True,
-                               null=True,
-                               )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                name='unique_subscription',
-                fields=['user', 'following'],
-            ),
-        ]
+    following = models.ForeignKey(User,
+                                  related_name='following',
+                                  on_delete=models.SET_NULL,
+                                  blank=True,
+                                  null=True,)

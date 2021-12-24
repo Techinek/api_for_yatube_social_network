@@ -1,15 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status, viewsets
+from rest_framework.exceptions import ParseError
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
 
-from posts.models import Comment, Group, Post, Follow
+from posts.models import Comment, Follow, Group, Post
 from .permissions import AuthorOrReadOnly
-from .serializers import (CommentSerializer,
-                          GroupSerializer,
-                          PostSerializer,
-                          FollowSerializer)
+from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
+                          PostSerializer)
 
 User = get_user_model()
 
@@ -53,10 +51,26 @@ class FollowViewSet(viewsets.ModelViewSet):
         return self.request.user.follower.all()
 
     def perform_create(self, serializer):
+        if not self.request.data.get('following'):
+            raise ParseError(
+                detail="No data provided",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
         author = get_object_or_404(User,
-                                   username=self.request.data.get('following'))
-        if author and self.request.user != author:
-            serializer.save(following=author, user=self.request.user)
-        return Response('Нельзя подписаться на самого себя',
-                        status=status.HTTP_400_BAD_REQUEST)
+                                   username=self.request.data.get
+                                   ('following'))
 
+        if author == self.request.user:
+            raise ParseError(
+                detail="User can't follow himself",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if Follow.objects.filter(following=author,
+                                 user=self.request.user).exists():
+            raise ParseError(
+                detail="User can't follow same author twice",
+                code=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer.save(following=author, user=self.request.user)
