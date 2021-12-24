@@ -53,26 +53,10 @@ class FollowViewSet(viewsets.ModelViewSet):
         return self.request.user.follower.all()
 
     def perform_create(self, serializer):
-        author_username = serializer.data.get('follower')
-        print(serializer.data)
-        if self.request.user.username == author_username:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
-        author = get_object_or_404(User, username=author_username)
-        serializer.save(following=author, user=self.request.user)
+        author = get_object_or_404(User,
+                                   username=self.request.data.get('following'))
+        if author and self.request.user != author:
+            serializer.save(following=author, user=self.request.user)
+        return Response('Нельзя подписаться на самого себя',
+                        status=status.HTTP_400_BAD_REQUEST)
 
-
-# def profile_follow(request, username):
-#     author = get_object_or_404(User, username=username)
-#     if request.user != author:
-#         Follow.objects.get_or_create(author=author, user=request.user)
-#         return redirect('posts:profile', username)
-#     return redirect('posts:profile', username)
-#
-#
-#
-# def profile_unfollow(request, username):
-#     author = get_object_or_404(User, username=username)
-#     following = request.user.follower.filter(author=author)
-#     following.delete()
-#     return redirect('posts:profile', username)
