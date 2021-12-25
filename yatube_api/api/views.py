@@ -51,26 +51,7 @@ class FollowViewSet(viewsets.ModelViewSet):
         return self.request.user.follower.all()
 
     def perform_create(self, serializer):
-        if not self.request.data.get('following'):
-            raise ParseError(
-                detail="No data provided",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
         author = get_object_or_404(User,
                                    username=self.request.data.get
                                    ('following'))
-
-        if author == self.request.user:
-            raise ParseError(
-                detail="User can't follow himself",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if Follow.objects.filter(following=author,
-                                 user=self.request.user).exists():
-            raise ParseError(
-                detail="User can't follow same author twice",
-                code=status.HTTP_400_BAD_REQUEST,
-            )
-
         serializer.save(following=author, user=self.request.user)

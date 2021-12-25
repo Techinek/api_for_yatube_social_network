@@ -50,3 +50,11 @@ class Follow(models.Model):
                                   on_delete=models.SET_NULL,
                                   blank=True,
                                   null=True,)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_subscription',
+                fields=['user', 'following'],
+            ),
+        ]
