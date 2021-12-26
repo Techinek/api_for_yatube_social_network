@@ -33,8 +33,9 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = SlugRelatedField(slug_field="username", read_only=True,)
-    following = SlugRelatedField(slug_field="username", read_only=True)
+    user = SlugRelatedField(slug_field="username", read_only=True)
+    following = SlugRelatedField(slug_field="username",
+                                 queryset=User.objects.all())
 
     class Meta:
         model = Follow
@@ -42,7 +43,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         local_user = self.context.get("request").user
-        following = self.initial_data.get("following")
+        following = data.get('following')
 
         if not following:
             raise serializers.ValidationError(
