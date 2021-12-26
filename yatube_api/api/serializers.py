@@ -9,40 +9,40 @@ User = get_user_model()
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    author = SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Post
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        read_only=True, slug_field="username"
     )
 
     class Meta:
-        fields = '__all__'
+        fields = "__all__"
         model = Comment
 
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = '__all__'
+        fields = "__all__"
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = SlugRelatedField(slug_field='username', read_only=True,)
-    following = SlugRelatedField(slug_field='username', read_only=True)
+    user = SlugRelatedField(slug_field="username", read_only=True,)
+    following = SlugRelatedField(slug_field="username", read_only=True)
 
     class Meta:
         model = Follow
-        fields = '__all__'
+        fields = "__all__"
 
     def validate(self, data):
         local_user = self.context.get("request").user
-        following = self.context.get("request").data.get('following')
+        following = self.initial_data.get("following")
 
         if not following:
             raise serializers.ValidationError(
@@ -59,10 +59,9 @@ class FollowSerializer(serializers.ModelSerializer):
             )
 
         if Follow.objects.filter(following=author,
-                                 user=local_user):
+                                 user=local_user).exists():
             raise serializers.ValidationError(
                 detail="User can't follow same author twice",
                 code=status.HTTP_400_BAD_REQUEST,
             )
-
         return data
