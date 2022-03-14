@@ -13,7 +13,7 @@
 - djangorestframework 3.12.4
 - djangorestframework-simplejwt 4.7.2
 
-#### Примеры запросов
+#### Примеры запросов:
 ```
 - GET api/v1/posts/ - получить список всех публикаций (при указании параметров limit и offset 
 выдача должна работать с пагинацией);
@@ -24,3 +24,20 @@
 - GET api/v1/{post_id}/comments/{id}/ - Получение комментария к публикации по id.
 ```
 Полная документация по API доступна по адресу: http://localhost:8000/redoc/
+
+#### Установка:
+
+1. Клонируем репозиторий на локальную машину:
+`$ git clone https://github.com/Techinek/simple_social_network_yatube.git`
+
+2. Создаем виртуальное окружение(Linux):
+`$ python -m venv venv`
+
+3. Устанавливаем зависимости:
+`$ pip install -r requirements.txt`
+
+4. Создаем и применяем миграции:
+`$ python manage.py makemigrations и $ python manage.py migrate`
+
+5. Запускаем локальный django-сервер:
+`$ python manage.py runserver`
